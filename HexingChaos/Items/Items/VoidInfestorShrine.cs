@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using static RainrotSharedUtils.Styling;
 
 namespace HexingChaos.Items
@@ -38,7 +39,64 @@ namespace HexingChaos.Items
 
         public override void Hooks()
         {
+            GlobalEventManager.OnInteractionsPermittedForSpawnGlobal += ShrineInfestors;
+        }
 
+        private void ShrineInfestors(Interactor interactor, IInteractable interactable, GameObject interactableObject)
+        {
+            if (interactableObject.TryGetComponent(out PurchaseInteraction purchaseInteraction) == false)
+                return;
+            if (purchaseInteraction.isShrine == false)
+                return;
+            if (interactor.gameObject.TryGetComponent(out CharacterBody body) == false)
+                return;
+            int count = GetCount(body);
+            if (count <= 0)
+                return;
+
+            ModelLocator component4 = interactableObject.GetComponent<ModelLocator>();
+            Transform transform2;
+            if (component4 == null)
+            {
+                transform2 = null;
+            }
+            else
+            {
+                Transform modelTransform = component4.modelTransform;
+                if (modelTransform == null)
+                {
+                    transform2 = null;
+                }
+                else
+                {
+                    ChildLocator component5 = modelTransform.GetComponent<ChildLocator>();
+                    transform2 = ((component5 != null) ? component5.FindChild("FireworkOrigin") : null);
+                }
+            }
+
+            int infestorCount = (int)GetStackValue(Mathf.Round(Run.instance.spawnRng.nextNormalizedFloat * (float)infestorsMax - (float)infestorsMin),infestorsStack, count);
+            for (int i = 0; i < infestorCount; i++)
+            {
+                ScriptedCombatEncounter.SpawnInfo spawnInfo = new ScriptedCombatEncounter.SpawnInfo();
+                spawnInfo.explicitSpawnPosition = transform2;
+                spawnInfo.spawnCard = Addressables.LoadAssetAsync<SpawnCard>("RoR2/DLC1/EliteVoid/cscVoidInfestor.asset").WaitForCompletion();
+                Spawn(ref spawnInfo);
+            }
+        }
+        private static void Spawn(ref ScriptedCombatEncounter.SpawnInfo spawnInfo)
+        {
+            DirectorPlacementRule directorPlacementRule = new DirectorPlacementRule
+            {
+                placementMode = DirectorPlacementRule.PlacementMode.Direct,
+                minDistance = 0f,
+                maxDistance = 1000f,
+                position = spawnInfo.explicitSpawnPosition.position,
+                spawnOnTarget = spawnInfo.explicitSpawnPosition
+            };
+            DirectorSpawnRequest directorSpawnRequest = new DirectorSpawnRequest(spawnInfo.spawnCard, directorPlacementRule, RoR2Application.rng);
+            directorSpawnRequest.ignoreTeamMemberLimit = true;
+            directorSpawnRequest.teamIndexOverride = TeamIndex.Void;
+            DirectorCore.instance.TrySpawnObject(directorSpawnRequest);
         }
     }
 }
