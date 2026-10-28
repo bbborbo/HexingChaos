@@ -25,6 +25,7 @@ namespace HexingChaos
     //languageapi
     //contentaddition
     //swansong soft dep
+    //rrsul hard dep
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.EveryoneNeedSameModVersion)]
     [BepInPlugin(guid, modName, version)]
     public class MoreHexesPlugin : BaseUnityPlugin
