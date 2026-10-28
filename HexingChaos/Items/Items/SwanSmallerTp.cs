@@ -74,19 +74,12 @@ namespace HexingChaos.Items
 		{
 			if (this.currentFocusConvergenceCount > 0)
 			{
-				radius /= HoldoutZoneController.FocusConvergenceController.convergenceRadiusDivisor * (float)this.currentFocusConvergenceCount;
+				radius /= 1 + currentFocusConvergenceCount * SwanSmallerTp.shrinkAmt;
 			}
 		}
 		private void ApplyColor(ref Color color)
 		{
-			color = Color.Lerp(color, HoldoutZoneController.FocusConvergenceController.convergenceMaterialColor, HoldoutZoneController.FocusConvergenceController.colorCurve.Evaluate(this.currentValue));
-		}
-		private void ApplyRate(ref float rate)
-		{
-			if (this.currentFocusConvergenceCount > 0)
-			{
-				rate *= 1f + HoldoutZoneController.FocusConvergenceController.convergenceChargeRateBonus * (float)this.currentFocusConvergenceCount;
-			}
+			color = Color.Lerp(color, HexConvergenceController.convergenceMaterialColor, HexConvergenceController.colorCurve.Evaluate(this.currentValue));
 		}
 		private void Update()
 		{
@@ -94,7 +87,7 @@ namespace HexingChaos.Items
 		}
 		private void DoUpdate(float deltaTime)
 		{
-			this.currentFocusConvergenceCount = Util.GetTotalItemCountFromTeam(new Util.GetTotalItemCountFromTeamArgs(RoR2Content.Items.FocusConvergence.itemIndex)
+			this.currentFocusConvergenceCount = Util.GetTotalItemCountFromTeam(new Util.GetTotalItemCountFromTeamArgs(SwanSmallerTp.instance.ItemsDef.itemIndex)
 			{
 				requiresAlive = true,
 				requiredTeam = new TeamIndex?(this.holdoutZoneController.chargingTeam),

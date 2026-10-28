@@ -72,10 +72,13 @@ namespace HexingChaos.Items
             if (lightningStrike == null)
             {
                 GameObject strikeInstance = Addressables.LoadAssetAsync<GameObject>(RoR2BepInExPack.GameAssetPathsBetter.RoR2_DLC2_meridian_DisableSkillsLightning.LightningStrikeInstance_prefab).WaitForCompletion();
+                Debug.LogError("sdfjhsdnjhfk");
                 if(strikeInstance.TryGetComponent(out lightningStrike) == false)
                     return;
             }
-            lightningStrike.Initialize(position, _blastInfo, LightningStormController.lightningPattern.lightningWarningDuration, false);
+            Debug.LogError("uuuu");
+            lightningStrike.Initialize(position, _blastInfo, 1f, false);
+            Debug.LogError("rrrrrrrrrrrr");
             LightningStormController.ReportLightningStrike(position);
         }
     }

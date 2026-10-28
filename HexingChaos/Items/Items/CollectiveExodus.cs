@@ -115,6 +115,10 @@ namespace HexingChaos.Items
                 ptc.enabled = false;
             }
             #endregion
+            if (exodusProjectilePrefab.TryGetComponent(out ProjectileFuse fuse))
+            {
+                fuse.fuse = 3f;
+            }
             CharacterController controller = exodusProjectilePrefab.AddComponent<CharacterController>();
             controller.contactOffset = 0.01f;
             controller.radius = 0.1f;
@@ -127,7 +131,7 @@ namespace HexingChaos.Items
             controller.enableOverlapRecovery = true;
             ProjectileCharacterController pcc = exodusProjectilePrefab.AddComponent<ProjectileCharacterController>();
             pcc.velocity = 10f;
-            pcc.lifetime = 5.1f;
+            pcc.lifetime = 100f;
 
             ContentAddition.AddProjectile(exodusProjectilePrefab);
         }
@@ -144,20 +148,11 @@ namespace HexingChaos.Items
             {
                 return;
             }
-            int count = inventory.GetItemCountEffective(DLC3Content.Items.TransferDebuffOnHit);
+            int count = inventory.GetItemCountEffective(CollectiveExodus.instance.ItemsDef);
             if (count <= 0)
             {
                 return;
             }
-            if (sourceBody.HasBuff(DLC3Content.Buffs.TransferingItem))
-            {
-                return;
-            }
-            if (sourceBody.master != null && !sourceBody.master.IsDeployableSlotAvailable(DeployableSlot.TransferDebuffOnHitProjectile))
-            {
-                return;
-            }
-            sourceBody.AddBuff(DLC3Content.Buffs.TransferingItem);
 
             forward.y = 0;
             forward = Vector3.Normalize(forward);
@@ -170,7 +165,7 @@ namespace HexingChaos.Items
                     maxSpread: 5, 
                     spreadYawScale: 1, 
                     spreadPitchScale: 0, 
-                    bonusYaw: (count / 2 - i) * yawSpread, 
+                    bonusYaw: ((float)count / 2f - i) * yawSpread, 
                     bonusPitch: 0
                 );
 
@@ -180,7 +175,9 @@ namespace HexingChaos.Items
                     owner = sourceBody.gameObject,
                     target = null,
                     position = sourceBody.corePosition,
-                    rotation = Util.QuaternionSafeLookRotation(dir)
+                    rotation = Util.QuaternionSafeLookRotation(dir),
+                    useFuseOverride = true,
+                    fuseOverride = 3f
                 };
                 ProjectileManager.instance.FireProjectile(fireProjectileInfo);
             }

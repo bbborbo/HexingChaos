@@ -42,7 +42,7 @@ namespace HexingChaos.Items
 
         public override void Hooks()
         {
-            StormsCore.GetStormDelayModifier += StormDelayer;
+            StormsCore.GetStormDelayModifierSeconds += StormDelayer;
         }
 
         private void StormDelayer(StormController sender, ref float delayModifier)
