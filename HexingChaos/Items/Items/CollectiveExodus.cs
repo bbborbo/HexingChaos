@@ -128,6 +128,8 @@ namespace HexingChaos.Items
             ProjectileCharacterController pcc = exodusProjectilePrefab.AddComponent<ProjectileCharacterController>();
             pcc.velocity = 10f;
             pcc.lifetime = 5.1f;
+
+            ContentAddition.AddProjectile(exodusProjectilePrefab);
         }
 
         public override void Hooks()

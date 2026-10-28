@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.Networking;
 using static RainrotSharedUtils.Styling;
 
@@ -44,7 +45,7 @@ namespace HexingChaos.Items
 
         public override void Hooks()
         {
-            On.RoR2.LightningStormController.FireLightningBolt_Vector3 += LightningStormController_FireLightningBolt_Vector3;
+            //On.RoR2.LightningStormController.FireLightningBolt_Vector3 += LightningStormController_FireLightningBolt_Vector3;
         }
 
         private void LightningStormController_FireLightningBolt_Vector3(On.RoR2.LightningStormController.orig_FireLightningBolt_Vector3 orig, Vector3 position)
@@ -60,15 +61,21 @@ namespace HexingChaos.Items
         {
             if (!NetworkServer.active)
             {
-                LightningStormController.SendLightningRequest(position);
+                //LightningStormController.SendLightningRequest(position);
                 return;
             }
-            LightningStrikeInstance pooledLightningStrike = LightningStormController.GetPooledLightningStrike(lightningPrefab);
-            if (pooledLightningStrike == null)
+            LightningStrikeInstance lightningStrike = null;
+            if (LightningStormController.instance != null)
             {
-                return;
+                lightningStrike = LightningStormController.GetPooledLightningStrike(lightningPrefab);
             }
-            pooledLightningStrike.Initialize(position, _blastInfo, LightningStormController.lightningPattern.lightningWarningDuration, false);
+            if (lightningStrike == null)
+            {
+                GameObject strikeInstance = Addressables.LoadAssetAsync<GameObject>(RoR2BepInExPack.GameAssetPathsBetter.RoR2_DLC2_meridian_DisableSkillsLightning.LightningStrikeInstance_prefab).WaitForCompletion();
+                if(strikeInstance.TryGetComponent(out lightningStrike) == false)
+                    return;
+            }
+            lightningStrike.Initialize(position, _blastInfo, LightningStormController.lightningPattern.lightningWarningDuration, false);
             LightningStormController.ReportLightningStrike(position);
         }
     }
@@ -82,9 +89,7 @@ namespace HexingChaos.Items
 
         void OnEnable()
         {
-            canStrike = Stage.instance.sceneDef.sceneType == SceneType.Stage
-                || Stage.instance.sceneDef.sceneType == SceneType.UntimedStage
-                || Stage.instance.sceneDef.sceneType == SceneType.TimedIntermission;
+            canStrike = true;
             strikeCountdown = 3f;
             TeleporterInteraction.onTeleporterFinishGlobal += DisableExodus;
         }
@@ -114,8 +119,6 @@ namespace HexingChaos.Items
                 return;
             }
             strikeCountdown = GetInterval();
-            float chance = ItemBase.GetStackValue(CollectiveExodus.exodusChanceBase, CollectiveExodus.exodusChanceStack, stack);
-
             StormLightning.SendLightningStrike(body.footPosition, LightningStormController.lightningPrefab, null);
         }
     }
