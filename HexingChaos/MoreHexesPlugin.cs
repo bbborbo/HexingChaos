@@ -31,9 +31,9 @@ namespace HexingChaos
     {
         public static PluginInfo PInfo;
         public const string guid = "com." + teamName + "." + modName;
-        public const string teamName = "BadItemCouncil";
-        public const string modName = "BadItemRehabilitation";
-        public const string version = "1.4.0";
+        public const string teamName = "RiskOfBrainrot";
+        public const string modName = "HexingChaos";
+        public const string version = "0.1.0";
         private static AssetBundle _mainAssetBundle;
         public static AssetBundle mainAssetBundle
         {
