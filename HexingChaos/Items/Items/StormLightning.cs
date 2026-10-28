@@ -1,10 +1,14 @@
 ﻿using R2API;
 using RoR2;
+using RoR2.Items;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 using static RainrotSharedUtils.Styling;
+
+[assembly: HG.Reflection.SearchableAttribute.OptIn]
 
 namespace HexingChaos.Items
 {
@@ -40,7 +44,79 @@ namespace HexingChaos.Items
 
         public override void Hooks()
         {
+            On.RoR2.LightningStormController.FireLightningBolt_Vector3 += LightningStormController_FireLightningBolt_Vector3;
+        }
 
+        private void LightningStormController_FireLightningBolt_Vector3(On.RoR2.LightningStormController.orig_FireLightningBolt_Vector3 orig, Vector3 position)
+        {
+            if (LightningStormController.instance.stormActive == false)
+            {
+                SendLightningStrike(position, LightningStormController.lightningPrefab, null);
+            }
+            orig(position);
+        }
+
+        public static void SendLightningStrike(Vector3 position, GameObject lightningPrefab, BlastAttack _blastInfo = null)
+        {
+            if (!NetworkServer.active)
+            {
+                LightningStormController.SendLightningRequest(position);
+                return;
+            }
+            LightningStrikeInstance pooledLightningStrike = LightningStormController.GetPooledLightningStrike(lightningPrefab);
+            if (pooledLightningStrike == null)
+            {
+                return;
+            }
+            pooledLightningStrike.Initialize(position, _blastInfo, LightningStormController.lightningPattern.lightningWarningDuration, false);
+            LightningStormController.ReportLightningStrike(position);
+        }
+    }
+
+    public class StormLightningBehavior : BaseItemBodyBehavior
+    {
+        [ItemDefAssociation(useOnServer = false, useOnClient = true)]
+        private static ItemDef GetItemDef() => StormLightning.instance?.ItemsDef ?? null;
+        public bool canStrike = true;
+        public float strikeCountdown = 0;
+
+        void OnEnable()
+        {
+            canStrike = Stage.instance.sceneDef.sceneType == SceneType.Stage
+                || Stage.instance.sceneDef.sceneType == SceneType.UntimedStage
+                || Stage.instance.sceneDef.sceneType == SceneType.TimedIntermission;
+            strikeCountdown = 3f;
+            TeleporterInteraction.onTeleporterFinishGlobal += DisableExodus;
+        }
+
+        void OnDisable()
+        {
+            TeleporterInteraction.onTeleporterFinishGlobal -= DisableExodus;
+        }
+
+        private void DisableExodus(TeleporterInteraction obj)
+        {
+            canStrike = false;
+        }
+
+        private float GetInterval()
+        {
+            return StormLightning.strikeInterval * Util.ConvertAmplificationPercentageIntoReductionNormalizedInverted(stack * StormLightning.strikeIntervalStack);
+        }
+        private void FixedUpdate()
+        {
+            if (canStrike == false)
+                return;
+
+            if (strikeCountdown > 0)
+            {
+                strikeCountdown -= Time.fixedDeltaTime;
+                return;
+            }
+            strikeCountdown = GetInterval();
+            float chance = ItemBase.GetStackValue(CollectiveExodus.exodusChanceBase, CollectiveExodus.exodusChanceStack, stack);
+
+            StormLightning.SendLightningStrike(body.footPosition, LightningStormController.lightningPrefab, null);
         }
     }
 }
