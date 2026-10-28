@@ -74,7 +74,7 @@ namespace HexingChaos.Items
                 }
             }
 
-            int infestorCount = (int)GetStackValue(Mathf.Round(Run.instance.spawnRng.nextNormalizedFloat * (float)infestorsMax - (float)infestorsMin),infestorsStack, count);
+            int infestorCount = (int)GetStackValue(Mathf.Round(Mathf.Lerp(infestorsMin, infestorsMax, Run.instance.spawnRng.nextNormalizedFloat)), infestorsStack, count);
             for (int i = 0; i < infestorCount; i++)
             {
                 ScriptedCombatEncounter.SpawnInfo spawnInfo = new ScriptedCombatEncounter.SpawnInfo();
