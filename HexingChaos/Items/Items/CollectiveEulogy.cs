@@ -31,6 +31,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab();
 
         public override Sprite ItemIcon => LoadItemIcon();
+        public override RoR2.ExpansionManagement.ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc3;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {

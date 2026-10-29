@@ -1,5 +1,6 @@
 ﻿using R2API;
 using RoR2;
+using RoR2.ExpansionManagement;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -31,6 +32,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab();
 
         public override Sprite ItemIcon => LoadItemIcon();
+        public override ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc1;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
@@ -73,6 +75,8 @@ namespace HexingChaos.Items
                     transform2 = ((component5 != null) ? component5.FindChild("FireworkOrigin") : null);
                 }
             }
+            if (transform2 == null)
+                return;
 
             int infestorCount = (int)GetStackValue(Mathf.Round(Mathf.Lerp(infestorsMin, infestorsMax, Run.instance.spawnRng.nextNormalizedFloat)), infestorsStack, count);
             for (int i = 0; i < infestorCount; i++)
