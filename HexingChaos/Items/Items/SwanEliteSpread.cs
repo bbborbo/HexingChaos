@@ -16,14 +16,14 @@ namespace HexingChaos.Items
         {
             return MoreHexesPlugin.isSwanSongLoaded;
         }
-        public static int spreadCtBase = 3;
+        public static int spreadCtBase = 2;
         public static int spreadCtStack = 1;
         public static float spreadRangeBase = 30f;
         public static float spreadRangeStack = 10f;
         public static float spreadDurationBase = 8f;
         public static float spreadDurationStack = 5f;
         public static bool blacklistVoidtouched = true;
-        public override string ItemName => "Hex of Carrion";
+        public override string ItemName => "Hex of Power";
 
         public override string ItemLangTokenName => "CURSEELITESPREAD";
 
