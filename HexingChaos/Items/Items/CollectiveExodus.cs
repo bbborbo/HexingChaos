@@ -8,12 +8,21 @@ using UnityEngine;
 using static RainrotSharedUtils.Styling;
 using static RainrotSharedUtils.SharedUtilsPlugin;
 using RoR2.Projectile;
+using HexingChaos.Modules;
+using UnityEngine.Networking;
 
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 namespace HexingChaos.Items
 {
     public class CollectiveExodus : ItemBase<CollectiveExodus>
     {
+        public static string[] exodusLeaveText = new string[]
+        {
+            "Wait, where'd it go!?",
+            "Is your fridge running..?",
+            "Something is off...",
+            "Must've been the wind?"
+        };
         public static GameObject exodusProjectilePrefab;
         public static float exodusInterval = 10f;
         public static float exodusChanceBase = 40f;
@@ -87,7 +96,8 @@ namespace HexingChaos.Items
                 SerializablePickupIndex pickupName = new SerializablePickupIndex();
                 pickupName.pickupName = this.pickupName;
                 pti.pickupName = pickupName;
-                pti.maxCapacity = 1;
+                pti.maxCapacity = 1; 
+                pti.destroyOnGrant = true;
             }
             #region disabling stuff
             if (exodusProjectilePrefab.TryGetComponent(out ProjectileDeployToOwner dto))
@@ -117,7 +127,13 @@ namespace HexingChaos.Items
             #endregion
             if (exodusProjectilePrefab.TryGetComponent(out ProjectileFuse fuse))
             {
-                fuse.fuse = 3f;
+                fuse.enabled = true;
+                fuse.fuse = 1f;
+                if (pti != null)
+                {
+                    fuse.onFuse.RemoveAllListeners();
+                    fuse.onFuse.AddPersistentListener(pti.DropItem);
+                }
             }
             CharacterController controller = exodusProjectilePrefab.AddComponent<CharacterController>();
             controller.contactOffset = 0.01f;
@@ -131,14 +147,20 @@ namespace HexingChaos.Items
             controller.enableOverlapRecovery = true;
             ProjectileCharacterController pcc = exodusProjectilePrefab.AddComponent<ProjectileCharacterController>();
             pcc.velocity = 10f;
-            pcc.lifetime = 100f;
 
             ContentAddition.AddProjectile(exodusProjectilePrefab);
         }
 
         public override void Hooks()
         {
+            On.RoR2.Projectile.ProjectileTransferItem.DropItem += ProjectileTransferItem_DropItem;
+        }
 
+        private void ProjectileTransferItem_DropItem(On.RoR2.Projectile.ProjectileTransferItem.orig_DropItem orig, ProjectileTransferItem self)
+        {
+            orig(self);
+            if (NetworkServer.active)
+                self.hasGivenItem = true;
         }
 
         internal static void FireExodusProjectile(CharacterBody sourceBody, Vector3 forward)
@@ -153,6 +175,12 @@ namespace HexingChaos.Items
             {
                 return;
             }
+
+            CharacterMasterNotificationQueue.CustomOverrideInfo overrideInfo = new CharacterMasterNotificationQueue.CustomOverrideInfo
+            {
+                descriptionText = exodusLeaveText[UnityEngine.Random.RandomRangeInt(0, exodusLeaveText.Length)]
+            };
+            CharacterMasterNotificationQueue.SendCustomNotification(sourceBody.master, CollectiveExodus.instance.ItemsDef.itemIndex, overrideInfo);
 
             forward.y = 0;
             forward = Vector3.Normalize(forward);
@@ -175,9 +203,7 @@ namespace HexingChaos.Items
                     owner = sourceBody.gameObject,
                     target = null,
                     position = sourceBody.corePosition,
-                    rotation = Util.QuaternionSafeLookRotation(dir),
-                    useFuseOverride = true,
-                    fuseOverride = 3f
+                    rotation = Util.QuaternionSafeLookRotation(dir)
                 };
                 ProjectileManager.instance.FireProjectile(fireProjectileInfo);
             }
