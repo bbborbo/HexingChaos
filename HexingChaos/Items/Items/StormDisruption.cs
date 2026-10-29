@@ -51,14 +51,48 @@ namespace HexingChaos.Items
     }
     public class StormDistortionBehavior : BaseItemBodyBehavior
     {
-        [ItemDefAssociation(useOnServer = true, useOnClient = false)]
+        [ItemDefAssociation(useOnServer = true, useOnClient = true)]
         private static ItemDef GetItemDef() => StormDisruption.instance?.ItemsDef ?? null;
         SkillLocator skillLocator;
+        GenericSkill targetSkill;
         bool isSkillLocked = false;
+        float stateChangeCountdown;
 
         void OnEnable()
         {
             skillLocator = body.skillLocator;
+            targetSkill = PickRandomSkill();
+            SetSkillLocked(true);
+            stateChangeCountdown = GetTimeUntilUnlock();
+        }
+
+        GenericSkill PickRandomSkill()
+        {
+            int random = UnityEngine.Random.RandomRangeInt(0, 4);
+            if (Run.instance != null)
+            {
+                random = Mathf.FloorToInt(Run.instance.runRNG.nextNormalizedFloat * 4);
+            }
+            switch (random)
+            {
+                default:
+                    return skillLocator.primary;
+                case 1:
+                    return skillLocator.secondary;
+                case 2:
+                    return skillLocator.utility;
+                case 3:
+                    return skillLocator.special;
+            }
+        }
+
+        float GetTimeUntilLock()
+        {
+            return Mathf.Max(0, ItemBase.GetStackValue(StormDisruption.corruptionInterval, 0 - StormDisruption.corruptionIntervalStack, stack));
+        }
+        float GetTimeUntilUnlock()
+        {
+            return StormDisruption.corruptionDuration;
         }
 
         void OnDisable()
@@ -67,30 +101,35 @@ namespace HexingChaos.Items
         }
         void SetSkillLocked(bool newState)
         {
-
-        }
-
-        private void DisableExodus(TeleporterInteraction obj)
-        {
-            canStrike = false;
-        }
-
-        private float GetInterval()
-        {
-            return StormLightning.strikeInterval * Util.ConvertAmplificationPercentageIntoReductionNormalizedInverted(stack * StormLightning.strikeIntervalStack);
+            if (newState == isSkillLocked)
+                return;
+            isSkillLocked = newState;
+            if (body.hasEffectiveAuthority == false)
+                return;
+            if(isSkillLocked == true)
+            {
+                targetSkill.SetSkillOverride(this, CharacterBody.CommonAssets.disabledSkill, GenericSkill.SkillOverridePriority.Contextual);
+                Util.PlaySound("Play_env_meridian_primeDevestator_debuff", base.gameObject);
+            }
+            else
+            {
+                targetSkill.UnsetSkillOverride(this, CharacterBody.CommonAssets.disabledSkill, GenericSkill.SkillOverridePriority.Contextual);
+            }
         }
         private void FixedUpdate()
         {
-            if (canStrike == false)
-                return;
-
-            if (strikeCountdown > 0)
+            stateChangeCountdown -= Time.fixedDeltaTime;
+            if(stateChangeCountdown <= 0 && isSkillLocked == true)
             {
-                strikeCountdown -= Time.fixedDeltaTime;
-                return;
+                SetSkillLocked(false);
+                stateChangeCountdown = GetTimeUntilLock();
             }
-            strikeCountdown = GetInterval();
-            StormLightning.SendLightningStrike(body.footPosition, LightningStormController.lightningPrefab, null);
+            if (stateChangeCountdown <= 0 && isSkillLocked == false)
+            {
+                targetSkill = PickRandomSkill();
+                SetSkillLocked(true);
+                stateChangeCountdown = GetTimeUntilUnlock();
+            }
         }
     }
 }
