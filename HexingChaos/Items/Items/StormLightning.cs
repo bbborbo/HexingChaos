@@ -15,7 +15,7 @@ namespace HexingChaos.Items
 {
     public class StormLightning : ItemBase<StormLightning>
     {
-        private static DamageTypeCombo lightningDamageTypeMeridian = new DamageTypeCombo(DamageType.LunarRuin, DamageTypeExtended.Generic, DamageSource.NoneSpecified);
+        private static DamageTypeCombo lightningDamageTypeMeridian = new DamageTypeCombo(DamageType.LunarRuin, DamageTypeExtended.ApplyBuffPermanently, DamageSource.NoneSpecified);
         private static DamageTypeCombo lightningDamageTypeNonMeridian = new DamageTypeCombo(DamageType.LunarRuin, DamageTypeExtended.Generic, DamageSource.NoneSpecified);
         private static bool isMeridian = false;
         public static float strikeInterval = 7f;
