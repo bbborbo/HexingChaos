@@ -13,7 +13,7 @@ using static RainrotSharedUtils.Styling;
 
 namespace HexingChaos.Items
 {
-    public class StormDisruption : ItemBase<StormDisruption>
+    public class StormDistortion : ItemBase<StormDistortion>
     {
         public static float corruptionInterval = 20f;
         public static float corruptionIntervalStack = 10f;
@@ -52,7 +52,7 @@ namespace HexingChaos.Items
     public class StormDistortionBehavior : BaseItemBodyBehavior
     {
         [ItemDefAssociation(useOnServer = true, useOnClient = true)]
-        private static ItemDef GetItemDef() => StormDisruption.instance?.ItemsDef ?? null;
+        private static ItemDef GetItemDef() => StormDistortion.instance?.ItemsDef ?? null;
         SkillLocator skillLocator;
         GenericSkill targetSkill;
         bool isSkillLocked = false;
@@ -88,11 +88,11 @@ namespace HexingChaos.Items
 
         float GetTimeUntilLock()
         {
-            return Mathf.Max(0, ItemBase.GetStackValue(StormDisruption.corruptionInterval, 0 - StormDisruption.corruptionIntervalStack, stack));
+            return Mathf.Max(0, ItemBase.GetStackValue(StormDistortion.corruptionInterval, 0 - StormDistortion.corruptionIntervalStack, stack));
         }
         float GetTimeUntilUnlock()
         {
-            return StormDisruption.corruptionDuration;
+            return StormDistortion.corruptionDuration;
         }
 
         void OnDisable()
