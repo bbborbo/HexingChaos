@@ -15,6 +15,9 @@ namespace HexingChaos.Items
 {
     public class StormLightning : ItemBase<StormLightning>
     {
+        private static DamageTypeCombo lightningDamageTypeMeridian = new DamageTypeCombo(DamageType.LunarRuin, DamageTypeExtended.Generic, DamageSource.NoneSpecified);
+        private static DamageTypeCombo lightningDamageTypeNonMeridian = new DamageTypeCombo(DamageType.LunarRuin, DamageTypeExtended.Generic, DamageSource.NoneSpecified);
+        private static bool isMeridian = false;
         public static float strikeInterval = 7f;
         /// <summary>
         /// hyperbolic
@@ -24,9 +27,9 @@ namespace HexingChaos.Items
 
         public override string ItemLangTokenName => "CURSELIGHTNING";
 
-        public override string ItemPickupDesc => $"{HexTierColor("Meridian lightning")} strikes on your position.";
+        public override string ItemPickupDesc => $"{HexTierColor("Ruinous lightning")} strikes on your position.";
 
-        public override string ItemFullDescription => $"Every {UtilityColor(strikeInterval.ToString())} {StackText("-" + strikeIntervalStack.ToString())} seconds, {HexTierColor("Meridian lightning")} strikes on your position.";
+        public override string ItemFullDescription => $"Every {UtilityColor(strikeInterval.ToString())} {StackText($"-{strikeIntervalStack.AsPercent()}")} seconds, {HexTierColor("ruinous lightning")} strikes on your position.";
 
         public override string ItemLore => "";
 
@@ -43,9 +46,20 @@ namespace HexingChaos.Items
             return null;
         }
 
+        public override void Init()
+        {
+            base.Init();
+        }
+
         public override void Hooks()
         {
-            //On.RoR2.LightningStormController.FireLightningBolt_Vector3 += LightningStormController_FireLightningBolt_Vector3;
+            Stage.onServerStageBegin += SwitchLightningDamageType;
+            On.RoR2.LightningStormController.FireLightningBolt_Vector3 += LightningStormController_FireLightningBolt_Vector3;
+        }
+
+        private void SwitchLightningDamageType(Stage obj)
+        {
+            isMeridian = obj.sceneDef.baseSceneName == "meridian";
         }
 
         private void LightningStormController_FireLightningBolt_Vector3(On.RoR2.LightningStormController.orig_FireLightningBolt_Vector3 orig, Vector3 position)
@@ -71,14 +85,13 @@ namespace HexingChaos.Items
             }
             if (lightningStrike == null)
             {
-                GameObject strikeInstance = Addressables.LoadAssetAsync<GameObject>(RoR2BepInExPack.GameAssetPathsBetter.RoR2_DLC2_meridian_DisableSkillsLightning.LightningStrikeInstance_prefab).WaitForCompletion();
-                Debug.LogError("sdfjhsdnjhfk");
+                GameObject strikePrefab = Addressables.LoadAssetAsync<GameObject>(RoR2BepInExPack.GameAssetPathsBetter.RoR2_DLC2_meridian_DisableSkillsLightning.LightningStrikeInstance_prefab).WaitForCompletion();
+                GameObject strikeInstance = UnityEngine.GameObject.Instantiate(strikePrefab, position, Quaternion.identity);
                 if(strikeInstance.TryGetComponent(out lightningStrike) == false)
                     return;
             }
-            Debug.LogError("uuuu");
-            lightningStrike.Initialize(position, _blastInfo, 1f, false);
-            Debug.LogError("rrrrrrrrrrrr");
+            lightningStrike.blastDamageType = isMeridian ? lightningDamageTypeMeridian : lightningDamageTypeNonMeridian;
+            lightningStrike.Initialize(position, _blastInfo, 1f, true);
             LightningStormController.ReportLightningStrike(position);
         }
     }

@@ -11,15 +11,23 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Events;
 using static HexingChaos.MoreHexesPlugin;
 
 namespace HexingChaos.Modules
 {
     public static class Extensions
     {
-        public static string AsPercent(this float d)
+        public static void AddPersistentListener(this UnityEvent unityEvent, UnityAction action)
         {
-            return (d * 100f).ToString() + "%";
+            unityEvent.m_PersistentCalls.AddListener(new PersistentCall
+            {
+                m_Target = action.Target as UnityEngine.Object,
+                m_TargetAssemblyTypeName = UnityEventTools.TidyAssemblyTypeName(action.Method.DeclaringType.AssemblyQualifiedName),
+                m_MethodName = action.Method.Name,
+                m_CallState = UnityEventCallState.RuntimeOnly,
+                m_Mode = PersistentListenerMode.EventDefined,
+            });
         }
     }
 
