@@ -1,5 +1,6 @@
 ﻿using R2API;
 using RoR2;
+using RoR2.ExpansionManagement;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,11 +10,15 @@ using static RainrotSharedUtils.Styling;
 namespace HexingChaos.Items
 {
     public class SwanSmallerTp : ItemBase<SwanSmallerTp>
-    {
-        /// <summary>
-        /// hyperbolic plsss
-        /// </summary>
-        public static float shrinkAmt = 0.3f;
+	{
+		public override bool GetPrerequisites()
+		{
+			return MoreHexesPlugin.isSwanSongLoaded;
+		}
+		/// <summary>
+		/// hyperbolic plsss
+		/// </summary>
+		public static float shrinkAmt = 0.3f;
         public override string ItemName => "Hex of Convergence";
 
         public override string ItemLangTokenName => "CURSECONVERGENCE";
@@ -32,6 +37,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab();
 
         public override Sprite ItemIcon => LoadItemIcon();
+		public override ExpansionDef RequiredExpansion => SwanSongExtended.SwanSongPlugin.expansionDefSS2;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {

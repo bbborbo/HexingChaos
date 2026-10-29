@@ -1,5 +1,6 @@
 ﻿using R2API;
 using RoR2;
+using RoR2.ExpansionManagement;
 using SwanSongExtended.Storms;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,10 @@ namespace HexingChaos.Items
 {
     public class SwanFasterStorm : ItemBase<SwanFasterStorm>
     {
+        public override bool GetPrerequisites()
+        {
+            return MoreHexesPlugin.isSwanSongLoaded;
+        }
         public static float stormTimeReductionSeconds = 40f;
         public static float stormTimeReductionSecondsStack = 20f;
         /// <summary>
@@ -34,6 +39,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab();
 
         public override Sprite ItemIcon => LoadItemIcon();
+        public override ExpansionDef RequiredExpansion => SwanSongExtended.SwanSongPlugin.expansionDefSS2;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {

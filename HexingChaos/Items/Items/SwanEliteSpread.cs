@@ -1,4 +1,5 @@
-﻿using R2API;
+﻿using RoR2.ExpansionManagement;
+using R2API;
 using RoR2;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,10 @@ namespace HexingChaos.Items
 {
     public class SwanEliteSpread : ItemBase<SwanEliteSpread>
     {
+        public override bool GetPrerequisites()
+        {
+            return MoreHexesPlugin.isSwanSongLoaded;
+        }
         public static int spreadCtBase = 3;
         public static int spreadCtStack = 1;
         public static float spreadRangeBase = 30f;
@@ -36,6 +41,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab();
 
         public override Sprite ItemIcon => LoadItemIcon();
+        public override ExpansionDef RequiredExpansion => SwanSongExtended.SwanSongPlugin.expansionDefSS2;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
