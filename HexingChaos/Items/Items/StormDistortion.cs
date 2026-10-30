@@ -23,7 +23,7 @@ namespace HexingChaos.Items
 
         public override string ItemLangTokenName => "CURSEDISTORTION";
 
-        public override string ItemPickupDesc => $"Lock a {HexTierColor("random skill")} every {corruptionInterval} seconds.";
+        public override string ItemPickupDesc => $"Lock a {HexTierColor("random skill")} for {corruptionDuration} seconds.";
 
         public override string ItemFullDescription => $"Lock a {HexTierColor("random skill")} every " +
             $"{UtilityColor(corruptionInterval.ToString())} {StackText("-" + corruptionIntervalStack)} seconds. " +

@@ -22,7 +22,7 @@ namespace HexingChaos.Items
         /// hyperbolic
         /// </summary>
         public static float strikeIntervalStack = 0.5f;
-        public override string ItemName => "Hex of Stratus";
+        public override string ItemName => "Hex of Pressure";
 
         public override string ItemLangTokenName => "CURSEFASTERSTORM";
 

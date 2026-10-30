@@ -27,7 +27,7 @@ namespace HexingChaos.Items
 
         public override string ItemLangTokenName => "CURSELIGHTNING";
 
-        public override string ItemPickupDesc => $"{HexTierColor("Ruinous lightning")} strikes on your position.";
+        public override string ItemPickupDesc => $"{HexTierColor("Ruinous lightning")} periodically strikes on your position.";
 
         public override string ItemFullDescription => $"Every {UtilityColor(strikeInterval.ToString())} {StackText($"-{strikeIntervalStack.AsPercent()}")} seconds, {HexTierColor("ruinous lightning")} strikes on your position.";
 

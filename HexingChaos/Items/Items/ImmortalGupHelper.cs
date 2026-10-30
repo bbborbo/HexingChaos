@@ -24,15 +24,15 @@ namespace HexingChaos.Items
         }
         public override bool isEnabled => true;
 
-        public override string ItemName => "You Are The Immortal Gup";
+        public override string ItemName => "You Are The Immortal Snail";
 
-        public override string ItemLangTokenName => "IMMORTALGUPHELPER";
+        public override string ItemLangTokenName => "IMMORTALSNAILHELPER";
 
-        public override string ItemPickupDesc => "You Are The Immortal Gup";
+        public override string ItemPickupDesc => "You Are The Immortal Snail";
 
-        public override string ItemFullDescription => "You Are The Immortal Gup";
+        public override string ItemFullDescription => "You Are The Immortal Snail";
 
-        public override string ItemLore => "You Are The Immortal Gup";
+        public override string ItemLore => "You Are The Immortal Snail";
 
         public override ItemTier Tier => ItemTier.NoTier;
 

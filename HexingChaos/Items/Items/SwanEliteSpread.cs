@@ -27,7 +27,7 @@ namespace HexingChaos.Items
 
         public override string ItemLangTokenName => "CURSEELITESPREAD";
 
-        public override string ItemPickupDesc => $"Slain elites {HexTierColor("empower")} other nearby enemies.";
+        public override string ItemPickupDesc => $"Slain elites {HexTierColor("transfer their power")} to other nearby enemies.";
 
         public override string ItemFullDescription => $"Slain Elites {HexTierColor("empower")} up to {UtilityColor(spreadCtBase.ToString())} {StackText("+" + spreadCtStack)} nearby enemies. " +
             $"Empowered enemies gain the {DamageColor("power")} of the killed elite monster for {DamageColor(spreadDurationBase.ToString())} {StackText("+" + spreadDurationStack)}.";
