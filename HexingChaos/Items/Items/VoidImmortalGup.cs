@@ -1,4 +1,8 @@
-﻿using R2API;
+﻿using EntityStates;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
+using R2API;
+using RainrotSharedUtils;
 using RoR2;
 using RoR2.CharacterAI;
 using RoR2.ExpansionManagement;
@@ -45,6 +49,43 @@ namespace HexingChaos.Items
         public override void Hooks()
         {
             On.RoR2.HealthComponent.TakeDamageProcess += HealthComponent_TakeDamageProcess;
+            gupDamageSourceSet = MoreHexesPlugin.isDamageSourceLoaded;
+            if(gupDamageSourceSet == false)
+            {
+                //On.EntityStates.Gup.GupSpikesState.OnEnter += GupDamageSource;
+                IL.EntityStates.BasicMeleeAttack.OnEnter += GupDamageType;
+                gupDamageSourceSet = true;
+            }
+        }
+
+        private void GupDamageSource(On.EntityStates.Gup.GupSpikesState.orig_OnEnter orig, EntityStates.Gup.GupSpikesState self)
+        {
+            self.damageType.damageSource = DamageSource.Primary;
+            orig(self);
+        }
+
+        private static bool gupDamageSourceSet = false;
+        private void GupDamageType(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+
+            bool b = c.TryGotoNext(MoveType.Before,
+                x => x.MatchStfld<OverlapAttack>(nameof(OverlapAttack.damageType))
+                );
+            if(b == false)
+            {
+                SharedUtilsPlugin.DebugBreakpoint(nameof(GupDamageType));
+                return;
+            }
+            c.Emit(OpCodes.Ldarg_0);
+            c.EmitDelegate<Func<DamageTypeCombo, BasicMeleeAttack, DamageTypeCombo>>((damageTypeIn, self) =>
+            {
+                if(self is EntityStates.Gup.GupSpikesState)
+                {
+                    damageTypeIn.damageSource = DamageSource.Primary;
+                }
+                return damageTypeIn;
+            });
         }
 
         private void HealthComponent_TakeDamageProcess(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
@@ -57,7 +98,6 @@ namespace HexingChaos.Items
                     {
                         int victimHexStack = self.body.inventory.GetItemCountPermanent(VoidImmortalGup.instance.ItemsDef);
                         int attackerGupStack = attackerBody.inventory.GetItemCountPermanent(ImmortalGupHelper.instance.ItemsDef);
-                        Debug.Log($"victim {self.name} hex stack {victimHexStack} attacker {attackerBody.name} gup stack {attackerGupStack}");
                         if (attackerGupStack > 0 && victimHexStack > 0)
                         {
                             damageInfo.damage = 999999f;
