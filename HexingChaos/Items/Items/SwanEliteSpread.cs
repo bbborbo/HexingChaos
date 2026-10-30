@@ -38,9 +38,9 @@ namespace HexingChaos.Items
 
         public override ItemTag[] ItemTags => new ItemTag[] { };
 
-        public override GameObject ItemModel => LoadDropPrefab();
+        public override GameObject ItemModel => LoadDropPrefab("PickupCurseEliteSpread");//8
 
-        public override Sprite ItemIcon => LoadItemIcon();
+        public override Sprite ItemIcon => LoadItemIcon("texIconHexEliteSpread");
         public override ExpansionDef RequiredExpansion => SwanSongExtended.SwanSongPlugin.expansionDefSS2;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

@@ -37,9 +37,9 @@ namespace HexingChaos.Items
 
         public override ItemTag[] ItemTags => new ItemTag[] { };
 
-        public override GameObject ItemModel => LoadDropPrefab();
+        public override GameObject ItemModel => LoadDropPrefab("PickupCurseLightning");//2
 
-        public override Sprite ItemIcon => LoadItemIcon();
+        public override Sprite ItemIcon => LoadItemIcon("texIconHexLightning");
         public override RoR2.ExpansionManagement.ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc2;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

@@ -28,9 +28,9 @@ namespace HexingChaos.Items
 
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.AIBlacklist, ItemTag.CannotCopy, ItemTag.CannotMagnify, ItemTag.DeathAffixBlacklist, ItemTag.BrotherBlacklist, ItemTag.DevotionBlacklist, ItemTag.ExtractorUnitBlacklist };
 
-        public override GameObject ItemModel => LoadDropPrefab();
+        public override GameObject ItemModel => LoadDropPrefab("PickupCurseEulogy");//7
 
-        public override Sprite ItemIcon => LoadItemIcon();
+        public override Sprite ItemIcon => LoadItemIcon("texIconHexCorruption");
         public override RoR2.ExpansionManagement.ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc3;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

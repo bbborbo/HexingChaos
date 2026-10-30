@@ -32,9 +32,9 @@ namespace HexingChaos.Items
 
         public override ItemTag[] ItemTags => new ItemTag[] { ItemTag.CannotCopy };
 
-        public override GameObject ItemModel => LoadDropPrefab();
+        public override GameObject ItemModel => LoadDropPrefab("PickupCurseImmortalGup");//4
 
-        public override Sprite ItemIcon => LoadItemIcon();
+        public override Sprite ItemIcon => LoadItemIcon("texIconHexImmortalGup");
         public override ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc1;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -49,24 +49,27 @@ namespace HexingChaos.Items
 
         private void HealthComponent_TakeDamageProcess(On.RoR2.HealthComponent.orig_TakeDamageProcess orig, HealthComponent self, DamageInfo damageInfo)
         {
-            if (self.gameObject != damageInfo.attacker && damageInfo.attacker && damageInfo.attacker.TryGetComponent(out CharacterBody attackerBody))
+            if (self.gameObject != damageInfo.attacker && damageInfo.damageType.IsDamageSourceSkillBased)
             {
-                if(attackerBody.inventory != null && self.body.inventory != null)
+                if (damageInfo.attacker && damageInfo.attacker.TryGetComponent(out CharacterBody attackerBody))
                 {
-                    int victimHexStack = self.body.inventory.GetItemCountPermanent(VoidImmortalGup.instance.ItemsDef);
-                    int attackerGupStack = attackerBody.inventory.GetItemCountPermanent(ImmortalGupHelper.instance.ItemsDef);
-                    Debug.Log($"victim {self.name} hex stack {victimHexStack} attacker {attackerBody.name} gup stack {attackerGupStack}");
-                    if (attackerGupStack > 0 && victimHexStack > 0)
+                    if (attackerBody.inventory != null && self.body.inventory != null)
                     {
-                        damageInfo.damage = 999999f;
-                        damageInfo.procCoefficient = 999999f;
-                        damageInfo.damageType = new DamageTypeCombo(
-                            DamageType.BleedOnHit | DamageType.BlightOnHit | DamageType.BypassArmor | DamageType.BypassBlock | DamageType.BypassOneShotProtection | DamageType.ClayGoo | DamageType.CrippleOnHit | DamageType.Freeze2s | DamageType.IgniteOnHit | DamageType.LunarRuin | DamageType.LunarSecondaryRootOnHit | DamageType.PoisonOnHit | DamageType.SlowOnHit | DamageType.WeakOnHit,
-                            DamageTypeExtended.Accelerant | DamageTypeExtended.DisableAllSkills | DamageTypeExtended.Frost | DamageTypeExtended.NanoBug | DamageTypeExtended.NoGravity,
-                            damageInfo.damageType.damageSource);
-                        damageInfo.crit = true;
-                        damageInfo.procChainMask.AddProc(ProcType.SureProc);
-                        damageInfo.force *= 10;
+                        int victimHexStack = self.body.inventory.GetItemCountPermanent(VoidImmortalGup.instance.ItemsDef);
+                        int attackerGupStack = attackerBody.inventory.GetItemCountPermanent(ImmortalGupHelper.instance.ItemsDef);
+                        Debug.Log($"victim {self.name} hex stack {victimHexStack} attacker {attackerBody.name} gup stack {attackerGupStack}");
+                        if (attackerGupStack > 0 && victimHexStack > 0)
+                        {
+                            damageInfo.damage = 999999f;
+                            damageInfo.procCoefficient = 999999f;
+                            damageInfo.damageType = new DamageTypeCombo(
+                                DamageType.BleedOnHit | DamageType.BlightOnHit | DamageType.BypassArmor | DamageType.BypassBlock | DamageType.BypassOneShotProtection | DamageType.ClayGoo | DamageType.CrippleOnHit | DamageType.Freeze2s | DamageType.IgniteOnHit | DamageType.LunarRuin | DamageType.LunarSecondaryRootOnHit | DamageType.PoisonOnHit | DamageType.SlowOnHit | DamageType.WeakOnHit,
+                                DamageTypeExtended.Accelerant | DamageTypeExtended.DisableAllSkills | DamageTypeExtended.Frost | DamageTypeExtended.NanoBug | DamageTypeExtended.NoGravity,
+                                damageInfo.damageType.damageSource);
+                            damageInfo.crit = true;
+                            damageInfo.procChainMask.AddProc(ProcType.SureProc);
+                            damageInfo.force *= 10;
+                        }
                     }
                 }
             }
@@ -135,13 +138,16 @@ namespace HexingChaos.Items
                     gupFriend.inventory.GiveItemPermanent(ImmortalGupHelper.instance.ItemsDef, diff);
             }
         }
+        void Update()
+        {
+            if (gupFriendAI == null)
+                return;
+            gupFriendAI.currentEnemy.gameObject = body.gameObject;
+        }
         void FixedUpdate()
         {
             if (gupFriend == null)
                 SpawnGup();
-            if (gupFriendAI == null)
-                return;
-            gupFriendAI.currentEnemy.gameObject = body.gameObject;
 
             verifyCountdown -= Time.fixedDeltaTime;
             if (verifyCountdown > 0)

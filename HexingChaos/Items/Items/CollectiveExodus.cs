@@ -10,6 +10,7 @@ using static RainrotSharedUtils.SharedUtilsPlugin;
 using RoR2.Projectile;
 using HexingChaos.Modules;
 using UnityEngine.Networking;
+using MonoMod.Cil;
 
 [assembly: HG.Reflection.SearchableAttribute.OptIn]
 namespace HexingChaos.Items
@@ -21,7 +22,9 @@ namespace HexingChaos.Items
             "Wait, where'd it go!?",
             "Is your fridge running..?",
             "Something is off...",
-            "Must've been the wind?"
+            "Must've been the wind?",
+            "L8r!",
+            "What's a 'Hallowed' item?"
         };
         public static GameObject exodusProjectilePrefab;
         public static float exodusInterval = 10f;
@@ -43,9 +46,9 @@ namespace HexingChaos.Items
 
         public override ItemTag[] ItemTags => new ItemTag[] { };
 
-        public override GameObject ItemModel => LoadDropPrefab();
+        public override GameObject ItemModel => LoadDropPrefab("PickupCurseExodus");//6
 
-        public override Sprite ItemIcon => LoadItemIcon();
+        public override Sprite ItemIcon => LoadItemIcon("texIconHexExodus");
         public override RoR2.ExpansionManagement.ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc3;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
@@ -70,6 +73,22 @@ namespace HexingChaos.Items
                     GameObject ghost = transferDebuffOnHitProjectileGhost.InstantiateClone("HexExodusProjectileGhost", false);
                     pct.ghostPrefab = ghost;
                     pct.ghostPrefabAddress = null;
+
+                    Transform modelHolder = ghost.transform.GetChild(0);
+                    Transform spinner = modelHolder.GetChild(0);
+                    //PickupTransferDebuffOnHit
+                    spinner.GetChild(0).gameObject.SetActive(false);
+                    UnityEngine.GameObject.Instantiate(ItemModel, spinner);
+
+                    Transform aura = ghost.transform.GetChild(1);
+                    Transform sphere = aura.GetChild(0);
+                    if(sphere.gameObject.TryGetComponent(out MeshRenderer mr))
+                    {
+                        Material mat = UnityEngine.Object.Instantiate(mr.material);
+                        mat.SetColor("_TintColor", new Color32(0, 160, 34, 255)/*(150, 110, 0, 191)*/);
+                        mr.sharedMaterials = new Material[1] { mat };
+                        mr.material = mat;
+                    }
 
                     /*
                      * ghost (parent)
@@ -129,7 +148,7 @@ namespace HexingChaos.Items
             if (exodusProjectilePrefab.TryGetComponent(out ProjectileFuse fuse))
             {
                 fuse.enabled = true;
-                fuse.fuse = 1f;
+                fuse.fuse = 1.33f;
                 if (pti != null)
                 {
                     fuse.onFuse.RemoveAllListeners();
@@ -155,6 +174,27 @@ namespace HexingChaos.Items
         public override void Hooks()
         {
             On.RoR2.Projectile.ProjectileTransferItem.DropItem += ProjectileTransferItem_DropItem;
+            IL.RoR2.Projectile.ProjectileTransferItem.Start += ProjectileTransferItem_Start;
+        }
+
+        private static bool projectileCapacityHookApplied = false;
+        private void ProjectileTransferItem_Start(ILContext il)
+        {
+            ILCursor c = new ILCursor(il);
+
+            bool b = c.TryGotoNext(MoveType.Before,
+                x => x.MatchLdfld<ProjectileTransferItem>(nameof(ProjectileTransferItem.maxCapacity)),
+                x => x.MatchCallOrCallvirt(typeof(UnityEngine.Mathf).FullName, nameof(UnityEngine.Mathf.Max))
+                );
+            if(b == false)
+            {
+                DebugBreakpoint(nameof(ProjectileTransferItem_Start));
+                return;
+            }
+            c.Index++;
+            c.Remove();
+            c.EmitDelegate<Func<int,int,int>>(UnityEngine.Mathf.Min);
+            projectileCapacityHookApplied = true;
         }
 
         private void ProjectileTransferItem_DropItem(On.RoR2.Projectile.ProjectileTransferItem.orig_DropItem orig, ProjectileTransferItem self)
@@ -184,7 +224,20 @@ namespace HexingChaos.Items
             CharacterMasterNotificationQueue.SendCustomNotification(sourceBody.master, CollectiveExodus.instance.ItemsDef.itemIndex, overrideInfo);
 
             forward.y = 0;
-            forward = Vector3.Normalize(forward);
+            forward = Vector3.Normalize(forward) * -1;
+            if(projectileCapacityHookApplied == false)
+            {
+                FireProjectileInfo fireProjectileInfo = new FireProjectileInfo
+                {
+                    projectilePrefab = exodusProjectilePrefab,
+                    owner = sourceBody.gameObject,
+                    target = null,
+                    position = sourceBody.corePosition,
+                    rotation = Util.QuaternionSafeLookRotation(forward)
+                };
+                ProjectileManager.instance.FireProjectile(fireProjectileInfo);
+                return;
+            }
             for(int i = 0; i < count; i++)
             {
                 float yawSpread = CollectiveExodus.yawSpread / count;

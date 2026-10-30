@@ -29,9 +29,9 @@ namespace HexingChaos.Items
 
         public override ItemTag[] ItemTags => new ItemTag[] { };
 
-        public override GameObject ItemModel => LoadDropPrefab();
+        public override GameObject ItemModel => LoadDropPrefab("PickupCurseInfestorShrine");//3
 
-        public override Sprite ItemIcon => LoadItemIcon();
+        public override Sprite ItemIcon => LoadItemIcon("texIconHexInfestorShrine");
         public override ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc1;
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()

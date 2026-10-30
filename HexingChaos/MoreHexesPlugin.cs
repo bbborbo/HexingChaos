@@ -47,7 +47,7 @@ namespace HexingChaos
             get
             {
                 if (_mainAssetBundle == null)
-                    _mainAssetBundle = Modules.Assets.LoadAssetBundle("baditemrehab");
+                    _mainAssetBundle = Modules.Assets.LoadAssetBundle("hexingchaos");
                 return _mainAssetBundle;
             }
             set
@@ -62,12 +62,14 @@ namespace HexingChaos
             PInfo = this.Info;
             Modules.Config.Init();
             CommonAssets.Init();
+            Modules.Materials.SwapShadersFromMaterialsInBundle(mainAssetBundle);
 
             Type[] allTypes = Assembly.GetExecutingAssembly().GetTypes();
             BeginInitializing<ItemBase>(allTypes, "HexingChaos.txt");
 
             Modules.Config.Save();
         }
+
 
         #region content initialization
         private void BeginInitializing<T>(Type[] allTypes, string fileName = "") where T : SharedBase
