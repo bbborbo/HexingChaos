@@ -14,6 +14,8 @@ using BepInEx.Bootstrap;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using RoR2.ContentManagement;
+using RoR2.ExpansionManagement;
+using static RainrotSharedUtils.SharedUtilsPlugin;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
@@ -29,6 +31,7 @@ namespace HexingChaos
     [BepInDependency(R2API.RecalculateStatsAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency(R2API.EliteAPI.PluginGUID, BepInDependency.DependencyFlags.HardDependency)]
 
+    [BepInDependency("Lordryn.DamageSourceForEnemies", BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(SwanSongExtended.SwanSongPlugin.guid, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(RainrotSharedUtils.SharedUtilsPlugin.guid, BepInDependency.DependencyFlags.HardDependency)]
 
@@ -38,9 +41,9 @@ namespace HexingChaos
     {
         public static PluginInfo PInfo;
         public const string guid = "com." + teamName + "." + modName;
-        public const string teamName = "RiskOfBrainrot";
+        public const string teamName = "duckduckgreyduck";
         public const string modName = "HexingChaos";
-        public const string version = "0.1.0";
+        public const string version = "1.1.0";
         private static AssetBundle _mainAssetBundle;
         public static AssetBundle mainAssetBundle
         {
@@ -57,6 +60,13 @@ namespace HexingChaos
         }
         internal static event Action onPluginLoaded;
         public static bool isSwanSongLoaded => Tools.isLoaded(SwanSongExtended.SwanSongPlugin.guid);
+        public static bool isDamageSourceLoaded => Tools.isLoaded("Lordryn.DamageSourceForEnemies");
+        public static ExpansionDef GetExpansionBypass(ExpansionDef ex)
+        {
+            if (Bindings.BypassExpansionRequirement == true)
+                return dlc4;
+            return ex;
+        }
         void Awake()
         {
             PInfo = this.Info;

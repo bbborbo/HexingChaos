@@ -74,7 +74,7 @@ namespace HexingChaos.Modules
     }
     public static class Bindings
     {
-        internal static bool AprilFools;
+        internal static bool BypassExpansionRequirement;
 
         public static bool BindSection(string sectionName)
         {
@@ -88,6 +88,9 @@ namespace HexingChaos.Modules
         {
             string section = "";
 
+            BypassExpansionRequirement = ConfigManager.DualBindToConfig<bool>(": Hexing Chaos", Config.MyConfig, "Bypass Expansion Requirements", false,
+                "If set to true, some Hexes that don't technically rely on DLC assets will be made available to the Hallowed Concepts Expansion without requiring other Expansions or Mods."
+                );
         }
     }
 }

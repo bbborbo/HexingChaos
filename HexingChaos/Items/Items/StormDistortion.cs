@@ -38,7 +38,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab("PickupCurseDistortion");//9
 
         public override Sprite ItemIcon => LoadItemIcon("texIconHexDistortion");
-        public override RoR2.ExpansionManagement.ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc2;
+        public override RoR2.ExpansionManagement.ExpansionDef RequiredExpansion => MoreHexesPlugin.GetExpansionBypass(RainrotSharedUtils.SharedUtilsPlugin.dlc2);
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {

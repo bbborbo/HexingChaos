@@ -1,4 +1,5 @@
-﻿using R2API;
+﻿using HexingChaos.Modules;
+using R2API;
 using RoR2;
 using RoR2.Items;
 using System;
@@ -31,7 +32,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab("PickupCurseEulogy");//7
 
         public override Sprite ItemIcon => LoadItemIcon("texIconHexCorruption");
-        public override RoR2.ExpansionManagement.ExpansionDef RequiredExpansion => RainrotSharedUtils.SharedUtilsPlugin.dlc3;
+        public override RoR2.ExpansionManagement.ExpansionDef RequiredExpansion => MoreHexesPlugin.GetExpansionBypass(RainrotSharedUtils.SharedUtilsPlugin.dlc3);
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {

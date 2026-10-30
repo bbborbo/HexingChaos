@@ -4,6 +4,7 @@ using RoR2.ExpansionManagement;
 using SwanSongExtended.Storms;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UnityEngine;
 using static RainrotSharedUtils.Styling;
@@ -14,7 +15,14 @@ namespace HexingChaos.Items
     {
         public override bool GetPrerequisites()
         {
-            return MoreHexesPlugin.isSwanSongLoaded;
+            if (MoreHexesPlugin.isSwanSongLoaded == false)
+                return false;
+            return GetStormsEnabled();
+        }
+        [MethodImpl(MethodImplOptions.NoInlining | MethodImplOptions.NoOptimization)]
+        private static bool GetStormsEnabled()
+        {
+            return SwanSongExtended.Storms.StormsCore.stormsEnabled;
         }
         public static float stormTimeReductionSeconds = 40f;
         public static float stormTimeReductionSecondsStack = 20f;
@@ -48,7 +56,8 @@ namespace HexingChaos.Items
 
         public override void Hooks()
         {
-            StormsCore.GetStormDelayModifierSeconds += StormDelayer;
+            if(StormsCore.stormsEnabled == true)
+                StormsCore.GetStormDelayModifierSeconds += StormDelayer;
         }
 
         private void StormDelayer(StormController sender, ref float delayModifier)

@@ -37,7 +37,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab("PickupCurseSmallerTp");//1
 
         public override Sprite ItemIcon => LoadItemIcon("texIconHexConvergence");
-		public override ExpansionDef RequiredExpansion => SwanSongExtended.SwanSongPlugin.expansionDefSS2;
+		public override ExpansionDef RequiredExpansion => MoreHexesPlugin.GetExpansionBypass(SwanSongExtended.SwanSongPlugin.expansionDefSS2);
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {

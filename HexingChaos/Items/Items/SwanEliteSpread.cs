@@ -41,7 +41,7 @@ namespace HexingChaos.Items
         public override GameObject ItemModel => LoadDropPrefab("PickupCurseEliteSpread");//8
 
         public override Sprite ItemIcon => LoadItemIcon("texIconHexEliteSpread");
-        public override ExpansionDef RequiredExpansion => SwanSongExtended.SwanSongPlugin.expansionDefSS2;
+        public override ExpansionDef RequiredExpansion => MoreHexesPlugin.GetExpansionBypass(SwanSongExtended.SwanSongPlugin.expansionDefSS2);
 
         public override ItemDisplayRuleDict CreateItemDisplayRules()
         {
